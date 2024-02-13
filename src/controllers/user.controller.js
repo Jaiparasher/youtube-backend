@@ -165,7 +165,7 @@ export const logoutUser = asyncHandler( async ( req, res ) => {
     .json(new ApiResponse(200, {}, "Logged Out Successfully"))
 })
 
-export const refreshAccessToken = asyncHandler(async (req,res)=>{
+export const refreshAccessToken = asyncHandler( async ( req, res )=>{
     
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
