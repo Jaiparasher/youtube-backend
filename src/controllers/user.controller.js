@@ -4,6 +4,8 @@ import { User } from './../models/user.models.js';
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { async } from './../db/index';
+import { updateAccountDetails } from './user.controller';
 
 const generateAccessAndRefreshTokens = async ( userId ) => {
     try {
@@ -211,3 +213,108 @@ export const refreshAccessToken = asyncHandler( async ( req, res )=>{
         throw new ApiError(401, error?.message || "Invalid refresh token")
     }
 })
+
+export const changeCurrentPassword = asyncHandler( async ( req,res )=>{
+    const { oldPassword, newPassword } = req.body
+
+    const user = await User.findById(req.user?._id)
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Wrong password')")
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave:false});
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,{},"Password changed successfully"))
+})
+
+export const getCurrentUser = asyncHandler( async( req, res )=>{
+    return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User Fetched"))
+})
+
+export const updateAccountDetails = asyncHandler( async( req, res )=>{
+    const {fullName, email} = req.body;
+    if(!fullName && !email){
+        throw new ApiError(400,'At least one field must be updated')
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        { 
+            $set: {
+            fullName,
+            email
+            }
+        },
+        { new: true}
+        ).select("-password");
+    
+    return res
+    .status(200)
+    .json(new ApiResponse(200, user,"Account Details Updated"));
+})
+
+export const updateUserAvatar = asyncHandler(async( req, res )=>{
+    const avatarLocalPath = req.file?.path;
+    
+    if(!avatarLocalPath){
+        throw new ApiError(400,"No Avatar uploaded")
+    }
+
+    const avatar = uploadOnCloudinary(avatarLocalPath);
+
+    if(!avatar.url){
+        throw new ApiError(400,"Image could not be uploaded");
+    }
+
+    const user =  await User.findByIdAndUpdate(
+        req.user?._id ,
+        {
+            $set:{
+                avatar:avatar.url
+            }
+        },
+        {new:true}
+        ).select("-password");
+        return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Avatar updated successfully" )
+    )
+});
+
+export const updateUserCoverImage = asyncHandler(async( req, res )=>{
+    const coverImageLocalPath = req.file?.path;
+    
+    if(!coverImageLocalPath){
+        throw new ApiError(400,"No cover image uploaded")
+    }
+
+    const coverImage = uploadOnCloudinary(coverImageLocalPath);
+
+    if(!coverImage.url){
+        throw new ApiError(400,"Image could not be uploaded");
+    }
+
+    const user =  await User.findByIdAndUpdate(
+        req.user?._id ,
+        {
+            $set:{
+                coverImage:coverImage.url
+            }
+        },
+        {new:true}
+        ).select("-password");
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Cover image updated successfully" )
+    )
+});
