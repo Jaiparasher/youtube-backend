@@ -137,7 +137,7 @@ const deleteTweet = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Tweet not found")
     }
 
-    await Tweet.findByIdAndDelete(tweet)
+    await Tweet.findByIdAndDelete(tweetId)
 
     return res
     .status(200)
