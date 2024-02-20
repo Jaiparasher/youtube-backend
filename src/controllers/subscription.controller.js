@@ -92,20 +92,16 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         }
     ])
 
-    if(subscriber.length == 0){
-        throw new ApiError(404,"No subscriber found");
-    }
-
     return res
     .status(200)
-    .json(new ApiResponse(200,subscriber,"Subscribers successfully fetched"))
+    .json(new ApiResponse(200,subscriber,subscriber.length == 0?"No subscriber found":"Subscribers successfully fetched"))
 
 })
 
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params;
-    
+
     if(!subscriberId){
         throw new ApiError(400,"subscriber id is required")
     }
