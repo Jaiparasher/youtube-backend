@@ -69,7 +69,7 @@ const addComment = asyncHandler(async (req, res) => {
 
     return res
     .status(200)
-    .json(new ApiResponse(200,comment,"playlist created successfully!")
+    .json(new ApiResponse(200,comment,"Comment added successfully!")
     )
 
 
@@ -77,38 +77,51 @@ const addComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
     // TODO: update a comment
-    const {commentId} = re.params
-    const {content} = req.body
-    if(!isValidObjectId(commentId)){
-        throw new ApiError(400,"Invalid commentId")
-    }
-    if(!content){
-        throw new ApiError(400,"content is required!")
-    }
-    if(!checkOwner(commentId,req.user?._id)) {
-        throw new ApiError(404, "Unauthorized Access")
+    const { content } = req.body 
+    const { commentId } = req.params
+
+    if(!content || content?.trim()===""){
+        throw new ApiError(400, "content is required")
     }
 
-    const comment = Comment.findByIdAndUpdate(commentId,
+    if(!isValidObjectId(commentId)){
+        throw new ApiError(400, "This video id is not valid")
+    }
+
+    const comment = await Comment.findById(commentId)
+
+    if (!comment) {
+        throw new ApiError(404, "comment not found!");
+    }
+
+    if (!checkOwner(commentId,req.user?._id)) {
+        throw new ApiError(403, "You don't have permission to update this comment!");
+    }
+
+    const updateComment = await Comment.findByIdAndUpdate(
+        commentId,
         {
             $set:{
-                content:content,
+                content: content
             }
         },
-        {new:true}
+        {
+            new: true
+        }
     )
-    if(!comment){
-        throw new ApiError(500,"Something went wrong while updating the details")
+
+    if(!updateComment){
+        throw new ApiError(500, "something went wrong while updating comment")
     }
 
-    return res
-    .status(200)
-    .json(new ApiResponse(200,comment,"comment updated successfully!"))
+    // return responce
+   return res.status(201).json(
+    new ApiResponse(200, updateComment, "comment updated successfully!!"))
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
     // TODO: delete a comment
-    const { commentId } = re.params
+    const { commentId } = req.params
 
     if (!commentId) {
         throw new ApiError(400, "commentId is required!");
