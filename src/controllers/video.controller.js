@@ -4,7 +4,7 @@ import {User} from "./../models/user.models.js"
 import {ApiError} from "./../utils/ApiError.js"
 import {ApiResponse} from "./../utils/ApiResponse.js"
 import {asyncHandler} from "./../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "./../utils/cloudinary.js"
+import {uploadOnCloudinary, deleteOnCloudinary} from "./../utils/cloudinary.js"
 
 const checkOwner = async(videoId,id)=>{
     const video = await Video.findById(videoId);
@@ -19,6 +19,36 @@ const checkOwner = async(videoId,id)=>{
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
+
+    const sortOptions  = {}
+    if (sortBy) {
+        sortOptions[sortBy] = sortType == "desc" ? -1 : 1;
+    }
+    
+    const result = await Video.aggregate([
+        {
+            $match: {
+                $or: [
+                  { title: { $regex: query, $options: "i" } },
+                  { description: { $regex: query, $options: "i" } },
+                ],
+                owner: userId,
+              },
+        },
+        {
+            $sort: sortOptions,
+        },
+        {
+            $skip: (page - 1) * limit,
+        },
+        {
+            $limit: parseInt(limit),
+        },
+    ])
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, result , "Successfully fetched all videos"));
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -93,6 +123,12 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(300,'Unauthorized Access')
     }
 
+    const previousVideo = await Video.findById(videoId);
+
+    if(!previousVideo){
+        throw new ApiError(404, "video not found")
+    }
+
     const {title,description} = req.body;
 
     if(!title || !description){
@@ -105,6 +141,8 @@ const updateVideo = asyncHandler(async (req, res) => {
         console.log('No file uploaded');
         return new ApiResponse(500,"No thumbnail uploaded");
     }
+
+    const previousThumbnail = previousVideo.thumbnail?.public_id;
 
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
@@ -127,6 +165,8 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500,"Something went wrong while updating the details")
     }
 
+    await deleteOnCloudinary(previousThumbnail);
+
     return res
     .status(200)
     .json(new ApiResponse(200,video,"Video updated Successfully"))
@@ -140,10 +180,20 @@ const deleteVideo = asyncHandler(async (req, res) => {
     if (!videoId) {
         throw new ApiError(404, "videoId is required!");
     }
+    const video = await Video.findById(videoId)
 
     if(!checkOwner(videoId,req.user?._id)) {
         throw new ApiError(404, "Unauthorized Access")
     }
+
+    if(video.videoFile){
+        await deleteOnCloudinary(video.videoFile.public_id, "video")
+    }
+
+    if(video.thumbnail){
+        await deleteOnCloudinary(video.thumbnail.public_id)
+    }
+    
     const deletedVideo = await Video.findByIdAndDelete(videoId)
 
     if(!deletedVideo){

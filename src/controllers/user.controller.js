@@ -266,6 +266,14 @@ export const updateUserAvatar = asyncHandler( async( req, res )=>{
         throw new ApiError(400,"No Avatar uploaded")
     }
 
+    const userDetails = await User.findById(req.user?._id).select("-password -refreshToken")
+
+    const previousAvatar = userDetails.avatar
+
+    if (previousAvatar.public_id) {
+        await deleteOnCloudinary(previousAvatar.public_id);
+    }
+
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
     if(!avatar.url){
@@ -293,6 +301,14 @@ export const updateUserCoverImage = asyncHandler( async( req, res )=>{
     
     if(!coverImageLocalPath){
         throw new ApiError(400,"No cover image uploaded")
+    }
+    const userDetails = await User.findById(req.user?._id)
+        .select("-password -refreshToken");
+
+    const previousCoverImage = userDetails.coverImage;
+    
+    if (previousCoverImage.public_id) {
+            await deleteOnCloudinary(previousCoverImage.public_id);
     }
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
