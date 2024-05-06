@@ -27,14 +27,14 @@ import healthcheckRouter from "./routes/healthcheck.routes.js"
 import commentRouter from "./routes/comment.routes.js"
 
 //routes declaration
-app.use("/api/v1/users", userRouter)
-app.use("/api/v1/video", videoRouter)
-app.use("/api/v1/tweet", tweetRouter)
-app.use("/api/v1/subscriptions", subscriptionRouter)
-app.use("/api/v1/playlist", playlistRouter)
-app.use("/api/v1/likes", likeRouter)
-app.use("/api/v1/dashboard", dashboardRouter)
-app.use("/api/v1/healthcheck", healthcheckRouter)
-app.use("/api/v1/comment", commentRouter)
+app.use("/users", userRouter)
+app.use("/video", videoRouter)
+app.use("/tweet", tweetRouter)
+app.use("/subscriptions", subscriptionRouter)
+app.use("/playlist", playlistRouter)
+app.use("/likes", likeRouter)
+app.use("/dashboard", dashboardRouter)
+app.use("/healthcheck", healthcheckRouter)
+app.use("/comment", commentRouter)
 
 export { app }
