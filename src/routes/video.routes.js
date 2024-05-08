@@ -10,8 +10,7 @@ import {
 import {upload} from "../middlewares/multer.middleware.js"
 import { VerifyJWT } from './../middlewares/auth.middleware.js';
 
-const router = Router();
-router.use(VerifyJWT); // Apply verifyJWT middleware to all routes in this file
+const router = Router(); // Apply verifyJWT middleware to all routes in this file
 
 router
     .route("/")
