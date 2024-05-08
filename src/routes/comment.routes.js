@@ -11,7 +11,7 @@ import { upload } from '../middlewares/multer.middleware.js';
 const router = Router();
 
 
-router.route("/:videoId").get(getVideoComments).post(VerifyJWT,addComment);
+router.route("/:videoId").get(VerifyJWT,getVideoComments).post(VerifyJWT,addComment);
 router.route("/c/:commentId").delete(VerifyJWT,deleteComment).patch(VerifyJWT,updateComment);
 
 export default router
