@@ -419,9 +419,9 @@ export const getWatchHistory = asyncHandler( async( req, res )=>{
         {
             $lookup: {
                 from: "videos",
-                localField: "watchHistory",
+                localField: "WatchHistory",
                 foreignField: "_id",
-                as: "watchHistory",
+                as: "WatchHistory",
                 pipeline:[
                     {
                         $lookup:{
