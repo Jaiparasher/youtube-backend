@@ -103,11 +103,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description,videoFile, thumbnail } = req.body;
-    console.log(req.user);
-     
-    if(!req.user._id){
-    throw new ApiError(400, "All fields are required");
-    }
     
     if ([title, description].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");

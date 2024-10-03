@@ -15,7 +15,7 @@ const router = Router();
 router
     .route("/")
     .get(getAllVideos)
-    .post(publishAVideo);
+    .post(VerifyJWT, publishAVideo)
 
 router
     .route("/v/:videoId")
