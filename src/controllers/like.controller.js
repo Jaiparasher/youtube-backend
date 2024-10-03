@@ -146,6 +146,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         }
     ])
+    console.log(likedVideos);
+    
 
     
     return res
