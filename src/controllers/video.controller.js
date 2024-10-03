@@ -102,26 +102,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description } = req.body;
+    const { title, description,videoFile, thumbnail } = req.body;
     
     if ([title, description].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
-    console.log(req.files);
-    
-    const videoFileLocalPath = req.files?.videoFile[0].path;
-    const thumbnailLocalPath = req.files?.thumbnail[0].path;
-
-    if (!videoFileLocalPath) {
-        throw new ApiError(400, "videoFileLocalPath is required");
-    }
-
-    if (!thumbnailLocalPath) {
-        throw new ApiError(400, "thumbnailLocalPath is required");
-    }
-
-    const videoFile = await uploadOnCloudinary(videoFileLocalPath);
-    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
     if (!videoFile) {
         throw new ApiError(400, "Video file not found");
