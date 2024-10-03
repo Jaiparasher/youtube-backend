@@ -106,7 +106,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     }
     const likedVideos = await Like.aggregate([
         {
-            $match:{
+            $match: {
                 video: {
                     $exists: true,
                 },
@@ -115,41 +115,63 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         },
         {
             $lookup: {
-              from: 'videos',
-              localField: 'video',
-              foreignField: "_id",
-              as: "likedVideos",
-              pipeline:[
-                {
-                    $project:{
-                        videoFile:1,
-                        thumbnail:1,
-                        views:1,
-                        duration:1,
-                        title:1,
-                        description:1
+                from: 'videos',
+                localField: 'video',
+                foreignField: "_id",
+                as: "likedVideos",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "ownerDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            ownerDetails: {
+                                $first: "$ownerDetails"
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            videoFile: 1,
+                            thumbnail: 1,
+                            views: 1,
+                            duration: 1,
+                            title: 1,
+                            description: 1,
+                            ownerDetails: 1
+                        }
                     }
-                }
-              ]
+                ]
             }
         },
         {
-            $addFields:{
-                video:{
-                    $first:"$likedVideos"
+            $addFields: {
+                video: {
+                    $first: "$likedVideos"
                 }
             }
         },
         {
-            $project:{
-                video:1,
+            $project: {
+                video: 1
             }
         }
-    ])
-    console.log(likedVideos);
-    
+    ]);
 
-    
     return res
     .status(200)
     .json(new ApiResponse(200, likedVideos, "liked videos!"));
