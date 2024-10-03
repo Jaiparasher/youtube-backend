@@ -103,14 +103,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description,videoFile, thumbnail } = req.body;
-    console.log(req.body);
-    
     
     if ([title, description].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
     console.log(title,videoFile,thumbnail);
-    
 
     if (!videoFile) {
         throw new ApiError(400, "Video file not found");
