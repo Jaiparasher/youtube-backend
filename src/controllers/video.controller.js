@@ -18,7 +18,6 @@ const checkOwner = async(videoId,id)=>{
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-    console.log(userId);
     const pipeline = [];
 
     // for using Full Text based search u need to create a search index in mongoDB atlas
@@ -32,7 +31,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 index: "search-videos",
                 text: {
                     query: query,
-                    path: ["title", "description"] //search only on title, desc
+                    path: ["title", "description"]
                 }
             }
         });
@@ -95,6 +94,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
     };
 
     const video = await Video.aggregatePaginate(videoAggregate, options);
+    console.log(video, videoAggregate, options);
+    
 
     return res
         .status(200)
