@@ -34,7 +34,6 @@ export const registerUser = asyncHandler( async ( req, res )=> {
     //return res
 
     const {fullName, email, username, password, avatar, coverImage} = req.body;
-    console.log(req.body);
     
 
     if([fullName, email, username, password].some((field) => field?.trim() === "")){

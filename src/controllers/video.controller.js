@@ -94,7 +94,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
     };
 
     const video = await Video.aggregatePaginate(videoAggregate, options);
-    console.log(video, videoAggregate, options);
     
 
     return res
@@ -108,7 +107,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if ([title, description].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
     }
-    console.log(title,videoFile,thumbnail);
 
     if (!videoFile) {
         throw new ApiError(400, "Video file not found");
