@@ -11,7 +11,7 @@ VideoHub App is a dynamic video hosting platform developed to provide users with
 
 - **Frontend Repo**: [Frontend Repo Link](https://github.com/Jaiparasher/VideoHub)
 - **Backend Repo**: [Backend Repo Link](https://github.com/Jaiparasher/youtube-backend)
-- **Deployed Website**: [Live Website](https://gregarious-meringue-bdc828.netlify.app/)
+- **Deployed Website**: [Live Website](https://videohubs.netlify.app/)
 
 ## Key Features
 - **User Authentication**: Secure user registration and login using JWT.
